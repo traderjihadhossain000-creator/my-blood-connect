@@ -7,20 +7,21 @@ import { API_URL } from '../lib/api';
 
 export default function Register() {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({ name:'', email:'', password:'', phone:'', bloodGroup:'A+', age:'', weight:'', division:'', district:'', thana:'', city:'', latitude:'', longitude:'', nidDocument:'', birthCertificateDocument:'' });
+  const [formData, setFormData] = useState({ name:'', email:'', password:'', phone:'', bloodGroup:'A+', age:'', weight:'', division:'', district:'', thana:'', city:'', latitude:'', longitude:'', nidDocument:'', birthCertificateDocument:'', isAvailable:true });
   const [errorMsg, setErrorMsg] = useState(''); const [successMsg, setSuccessMsg] = useState(''); const [loading, setLoading] = useState(false);
   const [locationOptions, setLocationOptions] = useState({ divisions:fallbackDivisions, thanas:fallbackThanas });
   const [locationsLoading, setLocationsLoading] = useState(true);
 
   useEffect(() => { navigator.geolocation?.getCurrentPosition((p) => setFormData((v) => ({ ...v, latitude:p.coords.latitude, longitude:p.coords.longitude })), () => {}); }, []);
   useEffect(() => { loadAllLocations().then(setLocationOptions).catch(() => setErrorMsg('Could not load the complete Bangladesh location list. Please refresh and try again.')).finally(() => setLocationsLoading(false)); }, []);
-  const change = (e) => setFormData((p) => ({ ...p, [e.target.name]:e.target.value }));
+  const change = (e) => setFormData((p) => ({ ...p, [e.target.name]:e.target.type === 'checkbox' ? e.target.checked : e.target.value }));
   const divisionChange = (e) => setFormData((p) => ({ ...p, division:e.target.value, district:'', thana:'' }));
   const districtChange = (e) => setFormData((p) => ({ ...p, district:e.target.value, thana:'' }));
 
   const submit = async (e) => {
     e.preventDefault(); setErrorMsg(''); setSuccessMsg('');
     if (!formData.division || !formData.district || !formData.thana || !formData.city) return setErrorMsg('Please complete Division, District, Thana and City/Area.');
+    if (formData.isAvailable && (!formData.age || !formData.weight)) return setErrorMsg('Age and weight are required when registering as an available donor.');
     setLoading(true);
     try { await axios.post(`${API_URL}/api/auth/register`, formData); setSuccessMsg('Registration successful. Redirecting to login...'); setTimeout(() => navigate('/login'), 1200); }
     catch (err) { setErrorMsg(err.response?.data?.message || 'Registration failed.'); } finally { setLoading(false); }
@@ -34,6 +35,7 @@ export default function Register() {
       <Select label="Division" name="division" value={formData.division} onChange={divisionChange} disabled={locationsLoading} options={Object.keys(locationOptions.divisions).map((x)=>[x,x])} /><Select label="District" name="district" value={formData.district} onChange={districtChange} disabled={!formData.division || locationsLoading} options={(locationOptions.divisions[formData.division]||[]).map((x)=>[x,x])} />
       <Select label={`Thana / Upazila${formData.district ? ` (${(locationOptions.thanas[formData.district]||[]).length})` : ''}`} name="thana" value={formData.thana} onChange={change} disabled={!formData.district || locationsLoading} options={(locationOptions.thanas[formData.district]||[]).map((x)=>[x,x])} /><Field icon={<MapPin />} label="City / Area"><input name="city" required value={formData.city} onChange={change} className={input} /></Field>
       <Field label="NID / Document URL (optional)"><input name="nidDocument" value={formData.nidDocument} onChange={change} className={input} placeholder="https://..." /></Field><Field label="Birth Certificate / Document URL (optional)"><input name="birthCertificateDocument" value={formData.birthCertificateDocument} onChange={change} className={input} placeholder="https://..." /></Field>
+      <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 md:col-span-2"><input type="checkbox" name="isAvailable" checked={formData.isAvailable} onChange={change} className="mt-1 h-5 w-5 accent-emerald-500"/><span><strong className="block text-emerald-300">Available for blood donation</strong><span className="text-sm text-slate-400">Keep this selected to appear in recipient donor searches after registration. You can change it anytime from Donor Mode.</span></span></label>
       <div className="md:col-span-2"><button type="button" onClick={()=>navigator.geolocation?.getCurrentPosition((p)=>setFormData((v)=>({...v,latitude:p.coords.latitude,longitude:p.coords.longitude})))} className="px-4 py-3 rounded-xl border border-slate-700 text-slate-300"><MapPin className="inline w-4 h-4 mr-2"/>Capture Current GPS</button><p className="text-xs text-slate-500 mt-2">GPS is used only for nearby donor search.</p></div>
       <button disabled={loading} className="md:col-span-2 bg-red-600 hover:bg-red-700 rounded-xl py-4 font-black disabled:opacity-50">{loading?'Creating...':'Create Account'}</button>
     </form><p className="text-center text-slate-500 mt-6">Already registered? <Link to="/login" className="text-red-400">Login</Link></p>

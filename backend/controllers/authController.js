@@ -46,7 +46,7 @@ const registerUser = async (req, res) => {
         const {
             name, email, password, phone, bloodGroup, age, weight,
             division, district, thana, city, latitude, longitude,
-            nidDocument, birthCertificateDocument
+            nidDocument, birthCertificateDocument, isAvailable
         } = req.body;
 
         if (!name || !email || !password || !phone || !bloodGroup || !division || !district || !thana || !city) {
@@ -59,6 +59,10 @@ const registerUser = async (req, res) => {
         }
         if (typeof password !== 'string' || password.length < 8) {
             return res.status(400).json({ success: false, message: 'Password must be at least 8 characters' });
+        }
+        const wantsToBeAvailable = isAvailable === true || isAvailable === 'true';
+        if (wantsToBeAvailable && (!Number(age) || !Number(weight))) {
+            return res.status(400).json({ success:false, message:'Age and weight are required to register as an available donor' });
         }
         const [existingEmail, existingPhone] = await Promise.all([
             User.findOne({ email: normalizedEmail }),
@@ -77,7 +81,8 @@ const registerUser = async (req, res) => {
             name: String(name).trim(), email: normalizedEmail, password: hashedPassword,
             phone: normalizedPhone, role: 'user', bloodGroup, age: age === '' ? null : Number(age),
             weight: weight === '' ? null : Number(weight), division, district, thana, city: String(city).trim(),
-            nidDocument: nidDocument || '', birthCertificateDocument: birthCertificateDocument || ''
+            nidDocument: nidDocument || '', birthCertificateDocument: birthCertificateDocument || '',
+            isAvailable:wantsToBeAvailable
         };
         if (coordinates) {
             userData.location = { type: 'Point', coordinates };
