@@ -4,6 +4,7 @@ import axios from 'axios';
 import { User, Mail, Lock, Phone, MapPin, AlertCircle, Scale } from 'lucide-react';
 import { divisions as fallbackDivisions, commonThanas as fallbackThanas } from '../data/bangladeshLocations';
 import { API_URL } from '../lib/api';
+import { getAccuratePosition } from '../lib/geolocation';
 
 export default function Register() {
   const navigate = useNavigate();
@@ -12,7 +13,7 @@ export default function Register() {
   const [locationOptions, setLocationOptions] = useState({ divisions:fallbackDivisions, thanas:fallbackThanas });
   const [locationsLoading, setLocationsLoading] = useState(true);
 
-  useEffect(() => { navigator.geolocation?.getCurrentPosition((p) => setFormData((v) => ({ ...v, latitude:p.coords.latitude, longitude:p.coords.longitude })), () => {}); }, []);
+  useEffect(() => { getAccuratePosition().then((p)=>setFormData((v)=>({...v,latitude:p.latitude,longitude:p.longitude,accuracy:p.accuracy}))).catch(()=>{}); }, []);
   useEffect(() => { loadAllLocations().then(setLocationOptions).catch(() => setErrorMsg('Could not load the complete Bangladesh location list. Please refresh and try again.')).finally(() => setLocationsLoading(false)); }, []);
   const change = (e) => setFormData((p) => ({ ...p, [e.target.name]:e.target.type === 'checkbox' ? e.target.checked : e.target.value }));
   const divisionChange = (e) => setFormData((p) => ({ ...p, division:e.target.value, district:'', thana:'' }));
@@ -36,7 +37,7 @@ export default function Register() {
       <Select label={`Thana / Upazila${formData.district ? ` (${(locationOptions.thanas[formData.district]||[]).length})` : ''}`} name="thana" value={formData.thana} onChange={change} disabled={!formData.district || locationsLoading} options={(locationOptions.thanas[formData.district]||[]).map((x)=>[x,x])} /><Field icon={<MapPin />} label="City / Area"><input name="city" required value={formData.city} onChange={change} className={input} /></Field>
       <Field label="NID / Document URL (optional)"><input name="nidDocument" value={formData.nidDocument} onChange={change} className={input} placeholder="https://..." /></Field><Field label="Birth Certificate / Document URL (optional)"><input name="birthCertificateDocument" value={formData.birthCertificateDocument} onChange={change} className={input} placeholder="https://..." /></Field>
       <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 md:col-span-2"><input type="checkbox" name="isAvailable" checked={formData.isAvailable} onChange={change} className="mt-1 h-5 w-5 accent-emerald-500"/><span><strong className="block text-emerald-300">Available for blood donation</strong><span className="text-sm text-slate-400">Keep this selected to appear in recipient donor searches after registration. You can change it anytime from Donor Mode.</span></span></label>
-      <div className="md:col-span-2"><button type="button" onClick={()=>navigator.geolocation?.getCurrentPosition((p)=>setFormData((v)=>({...v,latitude:p.coords.latitude,longitude:p.coords.longitude})))} className="px-4 py-3 rounded-xl border border-slate-700 text-slate-300"><MapPin className="inline w-4 h-4 mr-2"/>Capture Current GPS</button><p className="text-xs text-slate-500 mt-2">GPS is used only for nearby donor search.</p></div>
+      <div className="md:col-span-2"><button type="button" onClick={()=>getAccuratePosition().then((p)=>setFormData((v)=>({...v,latitude:p.latitude,longitude:p.longitude,accuracy:p.accuracy}))).catch(()=>setErrorMsg('Could not capture precise GPS. Turn on device Location and try again.'))} className="px-4 py-3 rounded-xl border border-slate-700 text-slate-300"><MapPin className="inline w-4 h-4 mr-2"/>Capture Current GPS</button><p className="text-xs text-slate-500 mt-2">GPS is used only for nearby donor search.{formData.accuracy ? ` Browser accuracy: about ${Math.round(formData.accuracy)} m.` : ''}</p></div>
       <button disabled={loading} className="md:col-span-2 bg-red-600 hover:bg-red-700 rounded-xl py-4 font-black disabled:opacity-50">{loading?'Creating...':'Create Account'}</button>
     </form><p className="text-center text-slate-500 mt-6">Already registered? <Link to="/login" className="text-red-400">Login</Link></p>
   </div></div></div>;

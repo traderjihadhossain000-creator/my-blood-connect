@@ -29,6 +29,7 @@ const userSchema = new mongoose.Schema({
         }
     },
     locationUpdatedAt: { type: Date, default: null },
+    locationAccuracy: { type: Number, min: 0, default: null },
     lastDonationDate: { type: Date, default: null },
     isAvailable: { type: Boolean, default: false },
     createdAt: { type: Date, default: Date.now }

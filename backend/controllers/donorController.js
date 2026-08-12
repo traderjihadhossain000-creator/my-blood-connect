@@ -54,7 +54,7 @@ const searchDonors = async (req, res) => {
         const hasGps = requestedSearchType === 'gps';
         const now = Date.now();
         const gpsCutoff = new Date(now - GPS_FRESH_MS);
-        const selectFields = 'name bloodGroup division district thana city location locationUpdatedAt lastDonationDate isAvailable';
+        const selectFields = 'name bloodGroup division district thana city location locationUpdatedAt locationAccuracy lastDonationDate isAvailable';
         let rawDonors = [];
 
         if (hasGps) {

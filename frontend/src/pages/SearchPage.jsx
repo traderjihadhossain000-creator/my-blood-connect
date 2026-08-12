@@ -4,6 +4,7 @@ import LiveMap from '../components/LiveMap';
 import DateTimePicker from '../components/DateTimePicker';
 import api, { API_URL, getStoredUser } from '../lib/api';
 import { divisions, commonThanas } from '../data/bangladeshLocations';
+import { getAccuratePosition } from '../lib/geolocation';
 
 const input = 'w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 outline-none focus:border-red-500';
 
@@ -57,6 +58,7 @@ export default function SearchPage() {
       setLastSearchType(useGps ? 'gps' : 'profile');
       if (!useGps) window.__bloodConnectRecipientLocation = null;
       setSelectedDonors([]);
+      if (useGps && coords.accuracy) setGpsMessage(`Live GPS received (about ${Math.round(coords.accuracy)} m accuracy). Nearest fresh-GPS donors are shown first.`);
       if (!useGps) setGpsMessage(`Search completed using only your selected filters. ${otherDonors.length} donor(s) found.`);
       if (!otherDonors.length) setGpsMessage(useGps ? 'GPS received, but no available eligible donor matched the selected filters.' : 'No available eligible donor matched the selected filters.');
     } catch (searchError) {
@@ -99,4 +101,4 @@ export default function SearchPage() {
 function Select({ label, name, value, onChange, options, disabled }) { return <div><label className="text-xs uppercase text-slate-400">{label}</label><select disabled={disabled} name={name} value={value} onChange={onChange} className={`${input} cursor-pointer disabled:cursor-not-allowed disabled:opacity-50`}>{options.map((option) => <option key={option} value={option}>{option || 'All'}</option>)}</select></div>; }
 function donorAddress(donor) { return [donor.city, donor.thana, donor.district, donor.division].filter(Boolean).filter((value, index, array) => array.indexOf(value) === index).join(', ') || 'Address not provided'; }
 function formatGps(location) { const [lng,lat]=location?.coordinates || []; return Number.isFinite(lat) && Number.isFinite(lng) ? `${lat.toFixed(6)}, ${lng.toFixed(6)}` : 'Unavailable'; }
-function getLiveGps() { return new Promise((resolve, reject) => { if (!navigator.geolocation) return reject(new Error('Your browser does not support GPS location.')); navigator.geolocation.getCurrentPosition((position) => resolve({ lat:position.coords.latitude, lng:position.coords.longitude }), (error) => { const messages = { 1:'Location permission was denied. Please allow location access and try again.', 2:'Your current location is unavailable. Please turn on GPS and try again.', 3:'GPS request timed out. Please try again.' }; reject(new Error(messages[error.code] || 'Could not access your live GPS location.')); }, { enableHighAccuracy:true, timeout:12000, maximumAge:0 }); }); }
+async function getLiveGps() { try { const position=await getAccuratePosition(); return {lat:position.latitude,lng:position.longitude,accuracy:position.accuracy}; } catch(error) { const messages={1:'Location permission was denied. Please allow location access and try again.',2:'Your current location is unavailable. Please turn on GPS and try again.',3:'GPS request timed out. Please try again.'}; throw new Error(messages[error.code]||error.message||'Could not access your live GPS location.',{cause:error}); } }

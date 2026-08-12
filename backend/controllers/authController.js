@@ -20,6 +20,7 @@ const safeUser = (user) => ({
     birthCertificateDocument: user.birthCertificateDocument,
     location: user.location,
     locationUpdatedAt: user.locationUpdatedAt,
+    locationAccuracy: user.locationAccuracy,
     lastDonationDate: user.lastDonationDate,
     isAvailable: user.isAvailable,
     createdAt: user.createdAt
@@ -45,7 +46,7 @@ const registerUser = async (req, res) => {
     try {
         const {
             name, email, password, phone, bloodGroup, age, weight,
-            division, district, thana, city, latitude, longitude,
+            division, district, thana, city, latitude, longitude, accuracy,
             nidDocument, birthCertificateDocument, isAvailable
         } = req.body;
 
@@ -87,6 +88,7 @@ const registerUser = async (req, res) => {
         if (coordinates) {
             userData.location = { type: 'Point', coordinates };
             userData.locationUpdatedAt = new Date();
+            userData.locationAccuracy = Number.isFinite(Number(accuracy)) ? Math.max(0,Number(accuracy)) : null;
         }
         const newUser = await User.create(userData);
 
@@ -110,6 +112,7 @@ const loginUser = async (req, res) => {
         if (coordinates) {
             user.location = { type: 'Point', coordinates };
             user.locationUpdatedAt = new Date();
+            user.locationAccuracy = Number.isFinite(Number(req.body.accuracy)) ? Math.max(0,Number(req.body.accuracy)) : null;
             await user.save();
         }
 
@@ -163,6 +166,7 @@ const updateProfile = async (req, res) => {
         if (coordinates) {
             updates.location = { type: 'Point', coordinates };
             updates.locationUpdatedAt = new Date();
+            updates.locationAccuracy = Number.isFinite(Number(req.body.accuracy)) ? Math.max(0,Number(req.body.accuracy)) : null;
         }
 
         const user = await User.findByIdAndUpdate(req.user.id, updates, { new: true, runValidators: true }).select('-password');
@@ -181,7 +185,8 @@ const updateLocation = async (req, res) => {
         if (!coordinates) return res.status(400).json({ success: false, message: 'Valid latitude and longitude are required' });
         const user = await User.findByIdAndUpdate(req.user.id, {
             location: { type: 'Point', coordinates },
-            locationUpdatedAt: new Date()
+            locationUpdatedAt: new Date(),
+            locationAccuracy: Number.isFinite(Number(req.body.accuracy)) ? Math.max(0,Number(req.body.accuracy)) : null
         }, { new: true }).select('-password');
         res.json({ success: true, message: 'Location updated successfully', user: safeUser(user) });
     } catch (error) {
