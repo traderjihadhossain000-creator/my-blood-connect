@@ -1,0 +1,22 @@
+{
+  "name": "blood-connect-api",
+  "version": "1.2.0",
+  "private": true,
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "check": "node --check server.js && node --check controllers/authController.js && node --check controllers/donorController.js && node --check controllers/requestController.js && node --check middleware/authMiddleware.js && node --check models/User.js && node --check models/BloodRequest.js",
+    "test": "node --test tests/*.test.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.8.1",
+    "socket.io": "^4.8.3"
+  }
+}

@@ -1,0 +1,45 @@
+@import "tailwindcss";
+
+html, body, #root { min-height: 100%; }
+body { margin: 0; background: #020617; font-family: Inter, ui-sans-serif, system-ui, sans-serif; }
+button, input, select { font: inherit; }
+
+button {
+  cursor: pointer;
+  transition: transform 140ms ease, filter 140ms ease, box-shadow 140ms ease, opacity 140ms ease;
+}
+
+button:not(:disabled):hover {
+  filter: brightness(1.15);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 22px rgb(0 0 0 / 22%);
+}
+
+button:not(:disabled):active {
+  filter: brightness(.92);
+  transform: translateY(1px) scale(.97);
+  box-shadow: none;
+}
+
+button:focus-visible {
+  outline: 3px solid rgb(248 113 113 / 65%);
+  outline-offset: 3px;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: .55;
+}
+
+.leaflet-tooltip.donor-map-label,
+.leaflet-tooltip.recipient-map-label {
+  border: 0;
+  border-radius: 8px;
+  box-shadow: 0 3px 12px rgb(0 0 0 / 35%);
+  font-weight: 800;
+  padding: 4px 8px;
+}
+.leaflet-tooltip.donor-map-label { background: #dc2626; color: white; }
+.leaflet-tooltip.recipient-map-label { background: #2563eb; color: white; }
+.leaflet-tooltip.donor-map-label::before,
+.leaflet-tooltip.recipient-map-label::before { display: none; }
