@@ -6,6 +6,7 @@ const jwt = require('jsonwebtoken');
 const rateLimit = require('express-rate-limit');
 const { Server } = require('socket.io');
 const connectDB = require('./config/db');
+const { createOriginValidator } = require('./config/cors');
 const User = require('./models/User');
 
 dotenv.config();
@@ -17,13 +18,10 @@ if (!process.env.MONGO_URI || !process.env.JWT_SECRET) {
 
 const app = express();
 const server = http.createServer(app);
-const allowedOrigins = (process.env.FRONTEND_URL || 'http://localhost:5173,https://my-blood-connect.vercel.app')
-    .split(',')
-    .map((item) => item.trim().replace(/\/$/, ''))
-    .filter(Boolean);
+const validateOrigin = createOriginValidator(process.env.FRONTEND_URL);
 
 app.disable('x-powered-by');
-app.use(cors({ origin: allowedOrigins, credentials: false }));
+app.use(cors({ origin: validateOrigin, credentials: false }));
 app.use(express.json({ limit: '1mb' }));
 
 const authLimiter = rateLimit({
@@ -37,7 +35,7 @@ app.use('/api/auth/login', authLimiter);
 app.use('/api/auth/register', authLimiter);
 
 const io = new Server(server, {
-    cors: { origin: allowedOrigins, methods: ['GET', 'POST', 'PATCH', 'PUT'] }
+    cors: { origin: validateOrigin, methods: ['GET', 'POST', 'PATCH', 'PUT'] }
 });
 
 io.use((socket, next) => {
