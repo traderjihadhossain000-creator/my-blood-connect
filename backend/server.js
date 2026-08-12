@@ -17,9 +17,9 @@ if (!process.env.MONGO_URI || !process.env.JWT_SECRET) {
 
 const app = express();
 const server = http.createServer(app);
-const allowedOrigins = (process.env.FRONTEND_URL || 'http://localhost:5173')
+const allowedOrigins = (process.env.FRONTEND_URL || 'http://localhost:5173,https://my-blood-connect.vercel.app')
     .split(',')
-    .map((item) => item.trim())
+    .map((item) => item.trim().replace(/\/$/, ''))
     .filter(Boolean);
 
 app.disable('x-powered-by');
