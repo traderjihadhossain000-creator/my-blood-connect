@@ -8,6 +8,7 @@ import { getAccuratePosition } from '../lib/geolocation';
 
 const input = 'w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 outline-none focus:border-red-500';
 
+// ei page e recipient donor search kora hoy, ar blood group, location, ar live GPS er basis e matching donor pawa hoy.
 export default function SearchPage() {
   const user = getStoredUser();
   const [filters, setFilters] = useState({ bloodGroup:'All', division:'', district:'', thana:'' });

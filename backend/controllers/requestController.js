@@ -29,6 +29,8 @@ const notifyDonors = (io, donorIds, request) => {
     io.emit('blood_request_changed', { type: 'created', requestId: request._id });
 };
 
+// emergency blood request create korar somoy ei controller use kora hoy.
+// request validation, matching donor identify, ar realtime notification system e request send korar kaj ei kothay hoy.
 const createBloodRequest = async (req, res) => {
     try {
         const { patientName, bloodGroup, hospitalName, hospitalAddress, contactNumber, bagsRequired, neededTime, targetDonorIds = [], requestType, latitude, longitude } = req.body;
@@ -92,6 +94,8 @@ const createBloodRequest = async (req, res) => {
     }
 };
 
+// public emergency board er jonno active request load korar kaj ei function handle kore.
+// bibhinno user er pending blood request frontend emergency feed e show korar jonno ei function use hoy.
 const getAllRequests = async (req, res) => {
     try {
         const requests = await BloodRequest.find({ requestType: { $in: ['emergency', null] }, status: 'pending', neededTime: { $gt: new Date() } })
@@ -144,6 +148,8 @@ const getMyDirectRequests = async (req, res) => {
     }
 };
 
+// donor profile e assigned request load korar jonno ei helper use kora hoy.
+// donor dashboard e incoming emergency/direct request display korar jonno ei section kaj kore.
 const getIncomingRequests = (requestType) => async (req, res) => {
     try {
         const requests = await BloodRequest.find({
@@ -183,6 +189,8 @@ const getIncomingEmergencyRequests = async (req, res) => {
     }
 };
 
+// donor er response handle korar jonno ei controller use kora hoy.
+// eligibility check kore request status accepted/rejected hisabe update kora hoy.
 const respondToRequest = async (req, res) => {
     try {
         const { status } = req.body;
@@ -232,6 +240,8 @@ const respondToRequest = async (req, res) => {
     }
 };
 
+// recipient er dware created active request cancel korar jonno ei logic use kora hoy.
+// rogike ar blood dorkar na hole ba request invalid hole ei section trigger hoy.
 const cancelRequest = async (req, res) => {
     try {
         if (!mongoose.isValidObjectId(req.params.id)) return res.status(400).json({ success: false, message: 'Invalid request id' });

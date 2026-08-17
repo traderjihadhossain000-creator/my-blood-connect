@@ -11,6 +11,8 @@ const readJson = async (path) => {
     return payload.data;
 };
 
+// public geo API theke Bangladesh division-district-upazila hierarchy load korar jonno ei endpoint use kora hoy.
+// frontend registration form ar donor search form e location dropdown ar filter populate korar jonno ei data lage.
 const getLocationHierarchy = async (req, res) => {
     try {
         if (cachedHierarchy && Date.now() - cachedAt < CACHE_DURATION) {

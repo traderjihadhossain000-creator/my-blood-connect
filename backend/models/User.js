@@ -1,7 +1,9 @@
 const mongoose = require('mongoose');
 
+// ei blood group list user er donor matching ar emergency request er jonno use kora hoy.
 const BLOOD_GROUPS = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 
+// ei schema e user profile, donation status, location, ar blood related data store kora hoy.
 const userSchema = new mongoose.Schema({
     name: { type: String, required: true, trim: true, minlength: 2, maxlength: 100 },
     email: { type: String, required: true, unique: true, trim: true, lowercase: true },

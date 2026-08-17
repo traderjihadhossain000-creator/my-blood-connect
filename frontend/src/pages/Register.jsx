@@ -6,6 +6,7 @@ import { divisions as fallbackDivisions, commonThanas as fallbackThanas } from '
 import { API_URL } from '../lib/api';
 import { getAccuratePosition } from '../lib/geolocation';
 
+// ei page e notun user er registration form kora hoy, ar address/doctor/blood data database e send kora hoy.
 export default function Register() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({ name:'', email:'', password:'', phone:'', bloodGroup:'A+', age:'', weight:'', division:'', district:'', thana:'', city:'', latitude:'', longitude:'', nidDocument:'', birthCertificateDocument:'', isAvailable:true });

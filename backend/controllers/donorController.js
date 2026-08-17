@@ -24,6 +24,8 @@ const addSelectedAreaFilters = (query, filters) => {
     return query;
 };
 
+// blood group, availability, location based matching donor khujar jonno ei controller use kora hoy.
+// emergency board e live GPS search ar profile-based search—dui rokom search ei section handle kore.
 const searchDonors = async (req, res) => {
     try {
         const {

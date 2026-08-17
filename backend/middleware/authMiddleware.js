@@ -1,5 +1,7 @@
 const jwt = require('jsonwebtoken');
 
+// ei middleware diye request er Authorization header check kora hoy.
+// JWT token thakle user ke authenticated hisabe accept kora hoy, na hole access stop kora hoy.
 const protect = (req, res, next) => {
     const header = req.headers.authorization || '';
     if (!header.startsWith('Bearer ')) {

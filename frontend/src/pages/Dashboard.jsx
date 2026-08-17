@@ -5,6 +5,7 @@ import DateTimePicker from '../components/DateTimePicker';
 
 const daysUntilEligible = (date) => date ? Math.max(0, 90 - Math.floor((Date.now() - new Date(date).getTime()) / 86400000)) : 0;
 
+// ei dashboard e donor ar recipient duijoner dashboard logic alada alada kora hoy.
 export default function Dashboard() {
   const [user] = useState(getStoredUser);
   const [mode, setMode] = useState(getActiveMode);

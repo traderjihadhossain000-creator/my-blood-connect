@@ -3,6 +3,8 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+// ei helper diye password-sahito sensitive field remove kore frontend-ke safe user data return kora hoy.
+// ei vabe profile information dekhano thake, kintu confidential data API response e expose hoy na.
 const safeUser = (user) => ({
     id: user._id,
     name: user.name,
@@ -42,6 +44,8 @@ const sendServerError = (res, label, error) => {
     return res.status(500).json({ success: false, message: 'Internal server error' });
 };
 
+// notun user account create korar somoy ei controller use kora hoy.
+// ei kothay input validation, password hashing, ar MongoDB e user profile store kora hoy.
 const registerUser = async (req, res) => {
     try {
         const {
@@ -99,6 +103,8 @@ const registerUser = async (req, res) => {
     }
 };
 
+// user login handle korar jonno ei section use kora hoy, ar JWT token generate kora hoy.
+// ei token pore profile update, request create ebong onno protected API access e authentication hisabe kaj kore.
 const loginUser = async (req, res) => {
     try {
         const { email, password, latitude, longitude } = req.body;
@@ -124,6 +130,8 @@ const loginUser = async (req, res) => {
     }
 };
 
+// logged-in user er profile data database theke fetch korar jonno ei function use kora hoy.
+// frontend dashboard ar profile page e current user information display korar jonno ei function kaj kore.
 const getProfile = async (req, res) => {
     try {
         const user = await User.findById(req.user.id).select('-password');
@@ -134,6 +142,8 @@ const getProfile = async (req, res) => {
     }
 };
 
+// user er editable profile field update korar jonno ei block use kora hoy.
+// donor profile update, blood group change, address change, donation history update er somoy ei section kaj kore.
 const updateProfile = async (req, res) => {
     try {
         const allowed = ['name', 'phone', 'bloodGroup', 'age', 'weight', 'division', 'district', 'thana', 'city', 'nidDocument', 'birthCertificateDocument', 'lastDonationDate'];
@@ -179,6 +189,8 @@ const updateProfile = async (req, res) => {
     }
 };
 
+// user er latest GPS coordinate database e store korar jonno ei controller use kora hoy.
+// ei khatre nearby available donor search, emergency matching, ar location-based filtering aro accurate hoy.
 const updateLocation = async (req, res) => {
     try {
         const coordinates = validateCoordinates(req.body.latitude, req.body.longitude);
@@ -194,6 +206,8 @@ const updateLocation = async (req, res) => {
     }
 };
 
+// user donor hisabe available kina set korar jonno ei logic use kora hoy.
+// donor eligibility na thakle ba ready na thakle request receive na korar jonno ei logic important role play kore.
 const toggleAvailability = async (req, res) => {
     try {
         const user = await User.findById(req.user.id);

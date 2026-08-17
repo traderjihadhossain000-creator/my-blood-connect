@@ -1,11 +1,13 @@
 const mongoose = require('mongoose');
 
+// ei schema e donor response status track kora hoy, jemon accepted, rejected, ar pending.
 const responseSchema = new mongoose.Schema({
     donorId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     status: { type: String, enum: ['pending', 'accepted', 'rejected'], default: 'pending' },
     respondedAt: { type: Date, default: null }
 }, { _id: false });
 
+// ei schema e blood request er patient info, hospital info, needed time, ar donor response store kora hoy.
 const bloodRequestSchema = new mongoose.Schema({
     recipientId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     requestType: { type: String, enum: ['direct', 'emergency'], required: true, default: 'emergency' },

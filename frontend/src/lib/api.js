@@ -1,5 +1,6 @@
 import axios from 'axios';
 
+// ei file e backend API base URL set kora hoy, ar auth token automatically request header e attach kora hoy.
 export const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/$/, '');
 
 const api = axios.create({ baseURL: API_URL, headers: { 'Content-Type': 'application/json' } });

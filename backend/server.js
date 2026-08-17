@@ -20,10 +20,14 @@ const app = express();
 const server = http.createServer(app);
 const validateOrigin = createOriginValidator(process.env.FRONTEND_URL);
 
+// ei settings diye API-ke secure ar stable rakha hoy.
+// default framework header disable kora hoy ar incoming JSON payload size limited rakha hoy.
 app.disable('x-powered-by');
 app.use(cors({ origin: validateOrigin, credentials: false }));
 app.use(express.json({ limit: '1mb' }));
 
+// login ar register endpoint e brute-force attack theke safeguard rakhar jonno rate limiter use kora hoy.
+// choto somoy er moddhe onek request asle app-ke safe rakhte ei limiter kaj kore.
 const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     limit: 100,
@@ -34,10 +38,12 @@ const authLimiter = rateLimit({
 app.use('/api/auth/login', authLimiter);
 app.use('/api/auth/register', authLimiter);
 
+// Socket.IO setup diye live emergency request update, donor response notification ebong onno realtime feature support kora hoy.
 const io = new Server(server, {
     cors: { origin: validateOrigin, methods: ['GET', 'POST', 'PATCH', 'PUT'] }
 });
 
+// prottek socket connection JWT authentication er maddhome verify kora hoy, jate shudhu logged-in user realtime update pay.
 io.use((socket, next) => {
     try {
         const token = socket.handshake.auth?.token;
@@ -49,6 +55,8 @@ io.use((socket, next) => {
     }
 });
 
+// client connect hoar por user-ke tar own room ar city room e add kora hoy.
+// ei jonno notification shudhu relevant donor/recipient group-ke pathano jay.
 io.on('connection', async (socket) => {
     socket.join(`user:${socket.user.id}`);
     try {
